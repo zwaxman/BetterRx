@@ -1,6 +1,13 @@
 const express = require('express')
 const app = express()
 const path = require('path')
+const driver = require('./db/db')
+// const neo4j = require("neo4j-driver");
+// const driver = neo4j.default.driver(
+//   "bolt://localhost:7687",
+//   neo4j.default.auth.basic("neo4j", "BetterRx")
+// );
+
 
 app.use(require('morgan')('dev'))
 
@@ -23,5 +30,9 @@ app.use((err, req, res, next) => {
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
-    console.log(`App listening on port ${port}`)
+    try {
+        console.log(`App listening on port ${port}`)
+    } catch (error) {
+        
+    }
 })
