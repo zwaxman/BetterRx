@@ -20,7 +20,7 @@ class EditProblemForm extends React.Component {
   componentWillReceiveProps(newProps) {
     const newState = {}
     for (let key in this.state) {
-      newState[key]=newProps.patient[key]
+      newState[key]=newProps.problem[key]
     }
     this.setState(newState)
   }

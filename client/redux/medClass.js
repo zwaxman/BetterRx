@@ -49,6 +49,28 @@ export const editMedClass = (medClass, history) => async dispatch => {
     }
 }
 
+export const sendAddIndicationToMedClass = (
+    medClassId,
+    indicationId
+  ) => async dispatch => {
+    try {
+      const { data } = await axios.post(
+        `/api/medClasses/${medClassId}/problems/${indicationId}`
+      , {relLabel: 'TREATS_PROBLEM', relProps: {}});
+      dispatch(fetchMedClass(medClassId))
+    } catch (error) {}
+  };
+  
+  export const sendDeleteIndicationFromMedClass = (
+    medClassId,
+    indicationId
+  ) => async dispatch => {
+    try {
+      await axios.delete(`/api/medClasses/${medClassId}/problems/${indicationId}`, {data: {relLabel: 'TREATS_PROBLEM'}});
+      dispatch(fetchMedClass(medClassId))
+    } catch (error) {}
+  };
+
 export const medClass = (state = {}, action) => {
     switch (action.type) {
         case SET_MED_CLASS:

@@ -101,7 +101,7 @@ class SingleProblem extends React.Component {
                     </option>
                   ))}
               </select>
-              {/* in the future, will be able to add details about txClass severity, symptoms, specific drugs in class */}
+              {/* in the future, will be able to add details about when this txclass should be used for problem */}
               <button type="submit">Submit</button>
             </form>
           ) : null}
