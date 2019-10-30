@@ -5,6 +5,8 @@ router.use('/patients', require('./patients'))
 
 router.use('/problems', require('./problems'))
 
+router.use('/medClasses', require('./medClasses'))
+
 router.use((req, res, next) => {
     const err = new Error('Not found')
     err.status = 404
