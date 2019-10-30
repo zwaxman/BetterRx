@@ -122,6 +122,32 @@ export const sendDeleteAllergyFromPatient = (
   } catch (error) {}
 };
 
+export const sendAddMedToPatient = (
+  patientId,
+  medId
+) => async dispatch => {
+  try {
+    const { data } = await axios.post(
+      `/api/patients/${patientId}/meds/${medId}`, 
+      {relLabel: 'TAKES_MED', relProps: {}}
+    );
+    dispatch(fetchPatient(patientId))
+  } catch (error) {
+      console.log(error)
+  }
+};
+
+export const sendDeleteMedFromPatient = (
+  patientId,
+  medId
+) => async dispatch => {
+  try {
+    await axios.delete(`/api/patients/${patientId}/meds/${medId}`,
+    {data: {relLabel: 'TAKES_MED'}});
+    dispatch(fetchPatient(patientId))
+  } catch (error) {}
+};
+
 export const patient = (state = {}, action) => {
   switch (action.type) {
     case SET_PATIENT:

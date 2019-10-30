@@ -59,7 +59,8 @@ router.get("/:id", (req, res, next) => {
             WHERE ID(patient) = ${id} \
             OPTIONAL MATCH (patient)-[:HAS_PROBLEM]-(problem:problem) \
             OPTIONAL MATCH (patient)-[:ALLERGIC_TO_MED_CLASS]-(medClass:medClass) \
-          RETURN patient, collect(DISTINCT problem) AS problems, collect(DISTINCT medClass) AS allergies`;
+            OPTIONAL MATCH (patient)-[:TAKES_MED]-(med:med) \
+          RETURN patient, collect(DISTINCT problem) AS problems, collect(DISTINCT medClass) AS allergies, collect(DISTINCT med) AS meds`;
       return tx.run(query);
     })
     .then(result => {
@@ -67,6 +68,7 @@ router.get("/:id", (req, res, next) => {
         const patientNode = result.records[0].get("patient")
         patientNode.properties.problems = result.records[0].get("problems").map(problem => new Node(problem))
         patientNode.properties.allergies = result.records[0].get("allergies").map(allergy => new Node(allergy))
+        patientNode.properties.meds = result.records[0].get("meds").map(med => new Node(med))
         const patient = new Node(patientNode)
       res.status(200).json(patient);
     })

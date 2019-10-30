@@ -26,7 +26,7 @@ class SingleMedClass extends React.Component {
   handleClick(e) {
     e.persist();
     if (e.target.id === "delete") {
-      this.props.deleteProblem(
+      this.props.deleteMedClass(
         Number(this.props.match.params.id),
         this.props.history
       );
