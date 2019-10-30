@@ -9,6 +9,7 @@ import {
   sendDeleteAllergyFromPatient
 } from "../../redux/patient";
 import { Link } from "react-router-dom";
+import {sort} from "../../../util"
 
 class SinglePatient extends React.Component {
   constructor(props) {
@@ -95,7 +96,7 @@ class SinglePatient extends React.Component {
         <div>
           <h2>Allergies</h2>
 
-          {allergies.map(allergy => (
+          {allergies.sort(sort).map(allergy => (
             <div key={allergy.id}>
               {/* In the future will add a warning icon if patient receiving any medication with an allergy */}
               <Link to={`/medClasses/${allergy.id}`}>{allergy.name}</Link>
@@ -134,7 +135,7 @@ class SinglePatient extends React.Component {
         <div>
           <h2>Problem List</h2>
 
-          {patientProblems.map(problem => (
+          {patientProblems.sort(sort).map(problem => (
             <div key={problem.id}>
               {/* In the future will add a warning icon if the problem is not being treated with any medication */}
               <Link to={`/problems/${problem.id}`}>{problem.name}</Link>

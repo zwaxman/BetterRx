@@ -80,7 +80,7 @@ export const sendAddProblemToPatient = (
 ) => async dispatch => {
   try {
     const { data } = await axios.post(
-      `/api/patients/${patientId}/problems/${problemId}`
+      `/api/patients/${patientId}/problems/${problemId}`, {relLabel: 'HAS_PROBLEM', relProps: {}}
     );
     dispatch(fetchPatient(patientId))
   } catch (error) {}
@@ -91,7 +91,7 @@ export const sendDeleteProblemFromPatient = (
   problemId
 ) => async dispatch => {
   try {
-    await axios.delete(`/api/patients/${patientId}/problems/${problemId}`);
+    await axios.delete(`/api/patients/${patientId}/problems/${problemId}`, {data: {relLabel: 'HAS_PROBLEM'}});
     dispatch(fetchPatient(patientId))
   } catch (error) {}
 };
@@ -102,7 +102,8 @@ export const sendAddAllergyToPatient = (
 ) => async dispatch => {
   try {
     const { data } = await axios.post(
-      `/api/patients/${patientId}/medClasses/${allergyId}`
+      `/api/patients/${patientId}/medClasses/${allergyId}`, 
+      {relLabel: 'ALLERGIC_TO_MED_CLASS', relProps: {}}
     );
     dispatch(fetchPatient(patientId))
   } catch (error) {
@@ -115,7 +116,8 @@ export const sendDeleteAllergyFromPatient = (
   allergyId
 ) => async dispatch => {
   try {
-    await axios.delete(`/api/patients/${patientId}/medClasses/${allergyId}`);
+    await axios.delete(`/api/patients/${patientId}/medClasses/${allergyId}`,
+    {data: {relLabel: 'ALLERGIC_TO_MED_CLASS'}});
     dispatch(fetchPatient(patientId))
   } catch (error) {}
 };

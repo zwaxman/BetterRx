@@ -7,6 +7,7 @@ import {
   sendDeleteTxClassFromProblem
 } from "../../redux/problem";
 import { Link } from "react-router-dom";
+import {sort} from "../../../util"
 
 class SingleProblem extends React.Component {
   constructor(props) {
@@ -70,7 +71,7 @@ class SingleProblem extends React.Component {
         <div>
         <h2>Treatment classes</h2>
 
-        {txClasses.map(txClass => (
+        {txClasses.sort(sort).map(txClass => (
             <div key={txClass.id}>
               {/* In the future will add a warning icon if patient receiving any medication with an txClass */}
               <Link to={`/medClasses/${txClass.id}`}>{txClass.name}</Link>

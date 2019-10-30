@@ -56,7 +56,7 @@ export const sendAddTxClassToProblem = (
     try {
       const { data } = await axios.post(
         `/api/problems/${problemId}/medClasses/${txClassId}`
-      );
+      , {relLabel: 'TREATS_PROBLEM', relProps: {}});
       dispatch(fetchProblem(problemId))
     } catch (error) {}
   };
@@ -66,7 +66,7 @@ export const sendAddTxClassToProblem = (
     txClassId
   ) => async dispatch => {
     try {
-      await axios.delete(`/api/problems/${problemId}/medClasses/${txClassId}`);
+      await axios.delete(`/api/problems/${problemId}/medClasses/${txClassId}`, {data: {relLabel: 'TREATS_PROBLEM'}});
       dispatch(fetchProblem(problemId))
     } catch (error) {}
   };

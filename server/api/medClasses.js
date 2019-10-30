@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const driver = require("../db/db");
-const MedClass = require("../db/MedClass");
+const Node = require("../db/Node");
 
 router.get("/", (req, res, next) => {
   const session = driver.session();
@@ -13,7 +13,7 @@ router.get("/", (req, res, next) => {
     })
     .then(result => {
       const medClasss = result.records.map(
-        medClass => new MedClass(medClass.get("medClass"))
+        medClass => new Node(medClass.get("medClass"))
       );
       session.close();
       res.status(200).json(medClasss);
@@ -40,7 +40,7 @@ router.post("/", (req, res, next) => {
     })
     .then(result => {
         session.close();
-      res.status(201).json(new MedClass(result.records[0].get("medClass")));
+      res.status(201).json(new Node(result.records[0].get("medClass")));
     })
     .catch(error => {
         session.close();
@@ -62,7 +62,7 @@ router.get("/:id", (req, res, next) => {
     })
     .then(result => {
         session.close();
-      res.status(200).json(new MedClass(result.records[0].get("medClass")));
+      res.status(200).json(new Node(result.records[0].get("medClass")));
     })
     .catch(error => {
         session.close();
@@ -109,7 +109,7 @@ router.put("/:id", (req, res, next) => {
       })
       .then(result => {
           session.close();
-        res.status(200).json(new MedClass(result.records[0].get("medClass")));
+        res.status(200).json(new Node(result.records[0].get("medClass")));
       })
       .catch(error => {
           session.close();

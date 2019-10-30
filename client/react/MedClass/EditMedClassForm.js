@@ -18,7 +18,11 @@ class EditMedClassForm extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState(newProps.medClass)
+    const newState = {}
+    for (let key in this.state) {
+      newState[key]=newProps.patient[key]
+    }
+    this.setState(newState)
   }
 
   handleChange(e) {

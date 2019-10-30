@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const driver = require("../db/db");
-const Patient = require("../db/Patient");
-const Problem = require("../db/Problem");
-const MedClass = require("../db/MedClass")
+const Node = require("../db/Node")
 
 router.get("/", (req, res, next) => {
   const session = driver.session();
@@ -15,7 +13,7 @@ router.get("/", (req, res, next) => {
     })
     .then(result => {
       const patients = result.records.map(
-        patient => new Patient(patient.get("patient"))
+        patient => new Node(patient.get("patient"))
       );
       session.close();
       res.status(200).json(patients);
@@ -42,7 +40,7 @@ router.post("/", (req, res, next) => {
     })
     .then(result => {
         session.close();
-      res.status(201).json(new Patient(result.records[0].get("patient")));
+      res.status(201).json(new Node(result.records[0].get("patient")));
     })
     .catch(error => {
         session.close();
@@ -61,15 +59,15 @@ router.get("/:id", (req, res, next) => {
             WHERE ID(patient) = ${id} \
             OPTIONAL MATCH (patient)-[:HAS_PROBLEM]-(problem:problem) \
             OPTIONAL MATCH (patient)-[:ALLERGIC_TO_MED_CLASS]-(medClass:medClass) \
-          RETURN patient, collect(problem) AS problems, collect(medClass) AS allergies`;
+          RETURN patient, collect(DISTINCT problem) AS problems, collect(DISTINCT medClass) AS allergies`;
       return tx.run(query);
     })
     .then(result => {
         session.close();
         const patientNode = result.records[0].get("patient")
-        patientNode.properties.problems = result.records[0].get("problems").map(problem => new Problem(problem))
-        patientNode.properties.allergies = result.records[0].get("allergies").map(allergy => new MedClass(allergy))
-        const patient = new Patient(patientNode)
+        patientNode.properties.problems = result.records[0].get("problems").map(problem => new Node(problem))
+        patientNode.properties.allergies = result.records[0].get("allergies").map(allergy => new Node(allergy))
+        const patient = new Node(patientNode)
       res.status(200).json(patient);
     })
     .catch(error => {
@@ -103,7 +101,6 @@ router.delete("/:id", (req, res, next) => {
 })
 
 router.put("/:id", (req, res, next) => {
-    console.log(req.body)
     const patient = req.body;
     const session = driver.session();
     session
@@ -118,10 +115,9 @@ router.put("/:id", (req, res, next) => {
       })
       .then(result => {
           session.close();
-        res.status(200).json(new Patient(result.records[0].get("patient")));
+        res.status(200).json(new Node(result.records[0].get("patient")));
       })
       .catch(error => {
-        console.log(error)
           session.close();
         error.status = 401;
         error.message = "Unable to edit patient";
@@ -129,104 +125,104 @@ router.put("/:id", (req, res, next) => {
       });
   });
 
-  router.post("/:patientId/problems/:problemId", (req, res, next) => {
-    const {patientId, problemId} = req.params
-    const session = driver.session();
-    session
-      .writeTransaction(tx => {
-        let query = `MATCH (patient:patient) \
-        WHERE ID(patient) = ${patientId} \
-        MATCH (problem:problem) \
-        WHERE ID(problem) = ${problemId} \
-        MERGE (patient)-[:HAS_PROBLEM]->(problem) \
-        RETURN patient, problem`
-        ;
-        return tx.run(query);
-      })
-      .then(result => {
-          session.close();
-        res.status(200).json({patient: new Patient(result.records[0].get("patient")), problem: new Problem(result.records[0].get("problem"))});
-      })
-      .catch(error => {
-          session.close();
-        error.status = 401;
-        error.message = "Unable to add problem";
-        next(error);
-      });
-  });
+  // router.post("/:patientId/problems/:problemId", (req, res, next) => {
+  //   const {patientId, problemId} = req.params
+  //   const session = driver.session();
+  //   session
+  //     .writeTransaction(tx => {
+  //       let query = `MATCH (patient:patient) \
+  //       WHERE ID(patient) = ${patientId} \
+  //       MATCH (problem:problem) \
+  //       WHERE ID(problem) = ${problemId} \
+  //       MERGE (patient)-[:HAS_PROBLEM]->(problem) \
+  //       RETURN patient, problem`
+  //       ;
+  //       return tx.run(query);
+  //     })
+  //     .then(result => {
+  //         session.close();
+  //       res.status(200).json({patient: new Node(result.records[0].get("patient")), problem: new Problem(result.records[0].get("problem"))});
+  //     })
+  //     .catch(error => {
+  //         session.close();
+  //       error.status = 401;
+  //       error.message = "Unable to add problem";
+  //       next(error);
+  //     });
+  // });
 
-  router.delete("/:patientId/problems/:problemId", (req, res, next) => {
-    const {patientId, problemId} = req.params
-    const session = driver.session();
-    session
-      .writeTransaction(tx => {
-        let query = `MATCH (patient:patient)-[has_problem:HAS_PROBLEM]-(problem:problem) \
-        WHERE ID(patient) = ${patientId} AND ID(problem) = ${problemId} \
-        DELETE has_problem`
-        ;
-        return tx.run(query);
-      })
-      .then(result => {
-          session.close();
-        res.sendStatus(200)
-      })
-      .catch(error => {
-          session.close();
-        error.status = 401;
-        error.message = "Unable to delete problem";
-        next(error);
-      });
-  });
+  // router.delete("/:patientId/problems/:problemId", (req, res, next) => {
+  //   const {patientId, problemId} = req.params
+  //   const session = driver.session();
+  //   session
+  //     .writeTransaction(tx => {
+  //       let query = `MATCH (patient:patient)-[has_problem:HAS_PROBLEM]-(problem:problem) \
+  //       WHERE ID(patient) = ${patientId} AND ID(problem) = ${problemId} \
+  //       DELETE has_problem`
+  //       ;
+  //       return tx.run(query);
+  //     })
+  //     .then(result => {
+  //         session.close();
+  //       res.sendStatus(200)
+  //     })
+  //     .catch(error => {
+  //         session.close();
+  //       error.status = 401;
+  //       error.message = "Unable to delete problem";
+  //       next(error);
+  //     });
+  // });
 
-  router.post("/:patientId/medClasses/:allergyId", (req, res, next) => {
-    console.log('IN ROUTE')
-    const {patientId, allergyId} = req.params
-    const session = driver.session();
-    session
-      .writeTransaction(tx => {
-        let query = `MATCH (patient:patient) \
-        WHERE ID(patient) = ${patientId} \
-        MATCH (allergy:medClass) \
-        WHERE ID(allergy) = ${allergyId} \
-        MERGE (patient)-[:ALLERGIC_TO_MED_CLASS]->(allergy) \
-        RETURN patient, allergy`
-        ;
-        return tx.run(query);
-      })
-      .then(result => {
-          session.close();
-        res.status(200).json({patient: new Patient(result.records[0].get("patient")), allergy: new MedClass(result.records[0].get("allergy"))});
-      })
-      .catch(error => {
-        console.log(error)
-          session.close();
-        error.status = 401;
-        error.message = "Unable to add allergy";
-        next(error);
-      });
-  });
+  // router.post("/:patientId/medClasses/:allergyId", (req, res, next) => {
+  //   console.log('IN ROUTE')
+  //   const {patientId, allergyId} = req.params
+  //   const session = driver.session();
+  //   session
+  //     .writeTransaction(tx => {
+  //       let query = `MATCH (patient:patient) \
+  //       WHERE ID(patient) = ${patientId} \
+  //       MATCH (allergy:medClass) \
+  //       WHERE ID(allergy) = ${allergyId} \
+  //       MERGE (patient)-[:ALLERGIC_TO_MED_CLASS]->(allergy) \
+  //       RETURN patient, allergy`
+  //       ;
+  //       return tx.run(query);
+  //     })
+  //     .then(result => {
+  //         session.close();
+  //       res.status(200).json({patient: new Node(result.records[0].get("patient")), allergy: new MedClass(result.records[0].get("allergy"))});
+  //     })
+  //     .catch(error => {
+  //       console.log(error)
+  //         session.close();
+  //       error.status = 401;
+  //       error.message = "Unable to add allergy";
+  //       next(error);
+  //     });
+  // });
 
-  router.delete("/:patientId/medClasses/:allergyId", (req, res, next) => {
-    const {patientId, allergyId} = req.params
-    const session = driver.session();
-    session
-      .writeTransaction(tx => {
-        let query = `MATCH (patient:patient)-[allergic_to_med_class:ALLERGIC_TO_MED_CLASS]-(allergy:medClass) \
-        WHERE ID(patient) = ${patientId} AND ID(allergy) = ${allergyId} \
-        DELETE allergic_to_med_class`
-        ;
-        return tx.run(query);
-      })
-      .then(result => {
-          session.close();
-        res.sendStatus(200)
-      })
-      .catch(error => {
-          session.close();
-        error.status = 401;
-        error.message = "Unable to delete allergy";
-        next(error);
-      });
-  });
+  // router.delete("/:patientId/medClasses/:allergyId", (req, res, next) => {
+  //   const {patientId, allergyId} = req.params
+  //   const session = driver.session();
+  //   session
+  //     .writeTransaction(tx => {
+  //       let query = `MATCH (patient:patient)-[allergic_to_med_class:ALLERGIC_TO_MED_CLASS]-(allergy:medClass) \
+  //       WHERE ID(patient) = ${patientId} AND ID(allergy) = ${allergyId} \
+  //       DELETE allergic_to_med_class`
+  //       ;
+  //       return tx.run(query);
+  //     })
+  //     .then(result => {
+  //         session.close();
+  //       res.sendStatus(200)
+  //     })
+  //     .catch(error => {
+  //         session.close();
+  //       error.status = 401;
+  //       error.message = "Unable to delete allergy";
+  //       next(error);
+  //     });
+  // });
 
 module.exports = router;

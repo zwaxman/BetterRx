@@ -1,4 +1,4 @@
-class MedClass {
+class Node {
     constructor(node) {
         this.id = node.identity.low
         for (let key in node.properties) {
@@ -7,4 +7,4 @@ class MedClass {
     }
 }
 
-module.exports = MedClass
+module.exports = Node

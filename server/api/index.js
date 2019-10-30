@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
+router.use('/:node1/:node1Id/:node2/:node2Id', require('./rel'))
+
 router.use('/patients', require('./patients'))
 
 router.use('/problems', require('./problems'))
