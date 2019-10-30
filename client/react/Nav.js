@@ -6,7 +6,8 @@ export const Nav = props => {
     <div>
         <div><Link to='/patients'>Patients</Link></div>
         <div><Link to='/problems'>Problems</Link></div>
-        <div><Link to='/medClasses'>Med Classes</Link></div>
+        <div><Link to='/medClasses'>Medication Classes</Link></div>
+        <div><Link to='/meds'>Medications</Link></div>
         <br />
     </div>
     )

@@ -4,7 +4,9 @@ import {
   fetchMedClass,
   deleteMedClass,
   sendAddIndicationToMedClass,
-  sendDeleteIndicationFromMedClass
+  sendDeleteIndicationFromMedClass,
+  sendAddMedToMedClass,
+  sendDeleteMedFromMedClass
 } from "../../redux/medClass";
 import { Link } from "react-router-dom";
 import {sort} from "../../../util"
@@ -12,7 +14,7 @@ import {sort} from "../../../util"
 class SingleMedClass extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showIndicationForm: false };
+    this.state = { showIndicationForm: false, showMedForm: false };
     this.handleClick = this.handleClick.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -33,6 +35,11 @@ class SingleMedClass extends React.Component {
         ...state,
         showIndicationForm: !state.showIndicationForm
       }));
+    } else if (e.target.id === "showMedForm") {
+      this.setState(state => ({
+        ...state,
+        showMedForm: !state.showMedForm
+      }));
     }
   }
 
@@ -43,6 +50,11 @@ class SingleMedClass extends React.Component {
         this.props.match.params.id,
         e.target.indication.value
       );
+    } else if (e.target.id === "addMed") {
+      this.props.sendAddMedToMedClass(
+        this.props.match.params.id,
+        e.target.med.value
+      );
     }
   }
 
@@ -52,6 +64,10 @@ class SingleMedClass extends React.Component {
     const indications = this.props.medClass.indications || [];
     const indicationsIds =
       indications.length > 0 ? indications.map(indication => indication.id) : [];
+
+      const meds = this.props.medClass.meds || [];
+      const medsIds =
+        meds.length > 0 ? meds.map(med => med.id) : [];
 
     return (
       <div>
@@ -105,19 +121,58 @@ class SingleMedClass extends React.Component {
           ) : null}
         </div>
 
+        <div>
         <h2>Medications in Class</h2>
+        {meds.sort(sort).map(med => (
+            <div key={med.id}>
+              <Link to={`/meds/${med.id}`}>{med.name}</Link>
+              <button
+                type="button"
+                onClick={() =>
+                  this.props.sendDeleteMedFromMedClass(id, med.id)
+                }
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          <button type="button" id="showMedForm" onClick={this.handleClick}>
+            {this.state.showMedForm ? "Hide" : "Add Medication"}
+          </button>
+
+          {this.state.showMedForm ? (
+            <form id="addMed" onSubmit={this.handleSubmit}>
+              <select name="med">
+                {this.props.meds
+                  .filter(med => !medsIds.includes(med.id))
+                  .map(med => (
+                    <option key={med.id} value={med.id}>
+                      {med.name}
+                    </option>
+                  ))}
+              </select>
+              {/* in the future, will be able to add details about when this medClass should be used for indication */}
+              <button type="submit">Submit</button>
+            </form>
+          ) : null}
+
+        </div>
+
         <h2>Analytics</h2>
       </div>
     );
   }
 }
 
-const mapStateToProps = ({ medClass, problems }) => ({ medClass, problems });
+const mapStateToProps = ({ medClass, problems, meds }) => ({ medClass, problems, meds });
 const mapDispatchToProps = {
   fetchMedClass,
   deleteMedClass,
   sendAddIndicationToMedClass,
-  sendDeleteIndicationFromMedClass
+  sendDeleteIndicationFromMedClass,
+  sendAddMedToMedClass,
+  sendDeleteMedFromMedClass
 };
 
 export default connect(
