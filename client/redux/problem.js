@@ -49,6 +49,28 @@ export const editProblem = (problem, history) => async dispatch => {
     }
 }
 
+export const sendAddTxClassToProblem = (
+    problemId,
+    txClassId
+  ) => async dispatch => {
+    try {
+      const { data } = await axios.post(
+        `/api/problems/${problemId}/medClasses/${txClassId}`
+      );
+      dispatch(fetchProblem(problemId))
+    } catch (error) {}
+  };
+  
+  export const sendDeleteTxClassFromProblem = (
+    problemId,
+    txClassId
+  ) => async dispatch => {
+    try {
+      await axios.delete(`/api/problems/${problemId}/medClasses/${txClassId}`);
+      dispatch(fetchProblem(problemId))
+    } catch (error) {}
+  };
+
 export const problem = (state = {}, action) => {
     switch (action.type) {
         case SET_PROBLEM:

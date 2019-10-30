@@ -1,47 +1,124 @@
 import React from "react";
 import { connect } from "react-redux";
-import { fetchProblem, deleteProblem } from "../../redux/problem";
+import {
+  fetchProblem,
+  deleteProblem,
+  sendAddTxClassToProblem,
+  sendDeleteTxClassFromProblem
+} from "../../redux/problem";
 import { Link } from "react-router-dom";
 
 class SingleProblem extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { showTxClassForm: false };
     this.handleClick = this.handleClick.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
     this.props.fetchProblem(this.props.match.params.id);
   }
 
-  handleClick() {
-    this.props.deleteProblem(Number(this.props.match.params.id), this.props.history);
+  handleClick(e) {
+    e.persist();
+    if (e.target.id === "delete") {
+      this.props.deleteProblem(
+        Number(this.props.match.params.id),
+        this.props.history
+      );
+    } else if (e.target.id === "showTxClassForm") {
+      this.setState(state => ({
+        ...state,
+        showTxClassForm: !state.showTxClassForm
+      }));
+    }
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    if (e.target.id === "addTxClass") {
+      this.props.sendAddTxClassToProblem(
+        this.props.match.params.id,
+        e.target.txClass.value
+      );
+    }
   }
 
   render() {
     const { name, id } = this.props.problem;
+
+    const txClasses = this.props.problem.txClasses || [];
+    const txClassesIds =
+      txClasses.length > 0 ? txClasses.map(txClass => txClass.id) : [];
+
     return (
       <div>
         <div id="header">
           <h1>{name}</h1>
           <h3>Aliases:</h3>
           <h3>Diagnostic criteria:</h3>
-          <button type='button'>UpToDate</button>
-          <Link to={`/problems/${id}/edit`}><button type='button'>Edit Problem</button></Link>
-          <button type="button" onClick={this.handleClick}>
+          <button type="button">UpToDate</button>
+          <Link to={`/problems/${id}/edit`}>
+            <button type="button">Edit Problem</button>
+          </Link>
+          <button type="button" id="delete" onClick={this.handleClick}>
             Delete Problem
           </button>
         </div>
 
-        <h2>Treatment medication classes</h2>
-          <h2>Analytics</h2>
+        <div>
+        <h2>Treatment classes</h2>
 
+        {txClasses.map(txClass => (
+            <div key={txClass.id}>
+              {/* In the future will add a warning icon if patient receiving any medication with an txClass */}
+              <Link to={`/medClasses/${txClass.id}`}>{txClass.name}</Link>
+              <button
+                type="button"
+                onClick={() =>
+                  this.props.sendDeleteTxClassFromProblem(id, txClass.id)
+                }
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          <button type="button" id="showTxClassForm" onClick={this.handleClick}>
+            {this.state.showTxClassForm ? "Hide" : "Add Treatment Class"}
+          </button>
+
+          {this.state.showTxClassForm ? (
+            <form id="addTxClass" onSubmit={this.handleSubmit}>
+              <select name="txClass">
+                {this.props.medClasses
+                  .filter(medClass => !txClassesIds.includes(medClass.id))
+                  .map(medClass => (
+                    <option key={medClass.id} value={medClass.id}>
+                      {medClass.name}
+                    </option>
+                  ))}
+              </select>
+              {/* in the future, will be able to add details about txClass severity, symptoms, specific drugs in class */}
+              <button type="submit">Submit</button>
+            </form>
+          ) : null}
+        </div>
+
+        <h2>Analytics</h2>
       </div>
     );
   }
 }
 
-const mapStateToProps = ({ problem }) => ({ problem });
-const mapDispatchToProps = { fetchProblem, deleteProblem };
+const mapStateToProps = ({ problem, medClasses }) => ({ problem, medClasses });
+const mapDispatchToProps = {
+  fetchProblem,
+  deleteProblem,
+  sendAddTxClassToProblem,
+  sendDeleteTxClassFromProblem
+};
 
 export default connect(
   mapStateToProps,

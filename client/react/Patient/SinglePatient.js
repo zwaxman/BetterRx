@@ -4,14 +4,16 @@ import {
   fetchPatient,
   deletePatient,
   sendAddProblemToPatient,
-  sendDeleteProblemFromPatient
+  sendDeleteProblemFromPatient,
+  sendAddAllergyToPatient,
+  sendDeleteAllergyFromPatient
 } from "../../redux/patient";
 import { Link } from "react-router-dom";
 
 class SinglePatient extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showProblemForm: false };
+    this.state = { showProblemForm: false, showAllergyForm: false };
     this.handleClick = this.handleClick.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -32,6 +34,11 @@ class SinglePatient extends React.Component {
         ...state,
         showProblemForm: !state.showProblemForm
       }));
+    } else if (e.target.id === "showAllergyForm") {
+      this.setState(state => ({
+        ...state,
+        showAllergyForm: !state.showAllergyForm
+      }));
     }
   }
 
@@ -42,16 +49,29 @@ class SinglePatient extends React.Component {
         this.props.match.params.id,
         e.target.problem.value
       );
+    } else if (e.target.id === "addAllergy") {
+      this.props.sendAddAllergyToPatient(
+        this.props.match.params.id,
+        e.target.allergy.value
+      );
     }
   }
 
   render() {
     const { id, name, age, sex, ethnicity } = this.props.patient;
+
     const patientProblems = this.props.patient.problems || [];
     const patientProblemsIds =
       patientProblems.length > 0
         ? patientProblems.map(problem => problem.id)
         : [];
+
+    const allergies = this.props.patient.allergies || [];
+    const allergiesIds =
+      allergies.length > 0
+        ? allergies.map(allergy => allergy.id)
+        : [];
+
     return (
       <div>
         <div id="header">
@@ -72,7 +92,44 @@ class SinglePatient extends React.Component {
           </Link>
         </div>
 
-        <h2>Allergies</h2>
+        <div>
+          <h2>Allergies</h2>
+
+          {allergies.map(allergy => (
+            <div key={allergy.id}>
+              {/* In the future will add a warning icon if patient receiving any medication with an allergy */}
+              <Link to={`/medClasses/${allergy.id}`}>{allergy.name}</Link>
+              <button
+                type="button"
+                onClick={() =>
+                  this.props.sendDeleteAllergyFromPatient(id, allergy.id)
+                }
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          <button type="button" id="showAllergyForm" onClick={this.handleClick}>
+            {this.state.showAllergyForm ? "Hide" : "Add Allergy"}
+          </button>
+
+          {this.state.showAllergyForm ? (
+            <form id="addAllergy" onSubmit={this.handleSubmit}>
+              <select name="allergy">
+                {this.props.medClasses
+                  .filter(medClass => !allergiesIds.includes(medClass.id))
+                  .map(medClass => (
+                    <option key={medClass.id} value={medClass.id}>
+                      {medClass.name}
+                    </option>
+                  ))}
+              </select>
+              {/* in the future, will be able to add details about allergy severity, symptoms, specific drugs in class */}
+              <button type="submit">Submit</button>
+            </form>
+          ) : null}
+        </div>
 
         <div>
           <h2>Problem List</h2>
@@ -80,10 +137,15 @@ class SinglePatient extends React.Component {
           {patientProblems.map(problem => (
             <div key={problem.id}>
               {/* In the future will add a warning icon if the problem is not being treated with any medication */}
-              <Link to={`/problems/${problem.id}`} >
-                {problem.name}
-              </Link>
-              <button type='button' onClick={()=>this.props.sendDeleteProblemFromPatient(id, problem.id)}>Delete</button>
+              <Link to={`/problems/${problem.id}`}>{problem.name}</Link>
+              <button
+                type="button"
+                onClick={() =>
+                  this.props.sendDeleteProblemFromPatient(id, problem.id)
+                }
+              >
+                Delete
+              </button>
             </div>
           ))}
 
@@ -115,12 +177,14 @@ class SinglePatient extends React.Component {
   }
 }
 
-const mapStateToProps = ({ patient, problems }) => ({ patient, problems });
+const mapStateToProps = ({ patient, problems, medClasses }) => ({ patient, problems, medClasses });
 const mapDispatchToProps = {
   fetchPatient,
   deletePatient,
   sendAddProblemToPatient,
-  sendDeleteProblemFromPatient
+  sendDeleteProblemFromPatient,
+  sendAddAllergyToPatient,
+  sendDeleteAllergyFromPatient
 };
 
 export default connect(
