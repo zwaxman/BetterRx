@@ -1,18 +1,31 @@
 import React from "react";
 import {connect} from 'react-redux'
-import {createPatient} from '../redux/patient'
+import {editPatient, fetchPatient} from '../../redux/patient'
 
-class NewPatientForm extends React.Component {
-  constructor() {
-    super();
+class EditPatientForm extends React.Component {
+  constructor(props) {
+    super(props);
     this.state = {
-      name: "",
-      age: "",
-      sex: "",
-      ethnicity: ""
+      id: this.props.patient.id || "",
+      name: this.props.patient.name || "",
+      age: this.props.patient.age || "",
+      sex: this.props.patient.sex || "",
+      ethnicity: this.props.patient.ethnicity || ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    this.props.fetchPatient(this.props.match.params.id)
+  }
+
+  componentWillReceiveProps(newProps) {
+    const newState = {}
+    for (let key in this.state) {
+      newState[key]=newProps.patient[key]
+    }
+    this.setState(newState)
   }
 
   handleChange(e) {
@@ -21,7 +34,7 @@ class NewPatientForm extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.props.createPatient(this.state)
+    this.props.editPatient(this.state, this.props.history)
   }
 
   render() {
@@ -29,7 +42,7 @@ class NewPatientForm extends React.Component {
       <form onSubmit={this.handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Name:</label>
-          <input type="text" name="name" onChange={this.handleChange} />
+          <input type="text" name="name" value={this.state.name} onChange={this.handleChange} />
         </div>
 
         <div className="form-group">
@@ -38,6 +51,7 @@ class NewPatientForm extends React.Component {
             type="number"
             name="age"
             min="0"
+            value={this.state.age}
             onChange={this.handleChange}
           />
         </div>
@@ -49,6 +63,7 @@ class NewPatientForm extends React.Component {
             type="radio"
             name="sex"
             value="male"
+            checked={this.state.sex==='male'}
             onChange={this.handleChange}
           ></input>
           <label htmlFor="female">Female</label>
@@ -56,6 +71,7 @@ class NewPatientForm extends React.Component {
             type="radio"
             name="sex"
             value="female"
+            checked={this.state.sex==='female'}
             onChange={this.handleChange}
           ></input>
         </div>
@@ -67,6 +83,7 @@ class NewPatientForm extends React.Component {
             type="radio"
             name="ethnicity"
             value="white"
+            checked={this.state.ethnicity==='white'}
             onChange={this.handleChange}
           ></input>
           <label htmlFor="black">Black</label>
@@ -74,6 +91,7 @@ class NewPatientForm extends React.Component {
             type="radio"
             name="ethnicity"
             value="black"
+            checked={this.state.ethnicity==='black'}
             onChange={this.handleChange}
           ></input>
           <label htmlFor="hispanic">Hispanic</label>
@@ -81,6 +99,7 @@ class NewPatientForm extends React.Component {
             type="radio"
             name="ethnicity"
             value="hispanic"
+            checked={this.state.ethnicity==='hispanic'}
             onChange={this.handleChange}
           ></input>
           <label htmlFor="asian">Asian</label>
@@ -88,6 +107,7 @@ class NewPatientForm extends React.Component {
             type="radio"
             name="ethnicity"
             value="asian"
+            checked={this.state.ethnicity==='asian'}
             onChange={this.handleChange}
           ></input>
         </div>
@@ -98,6 +118,7 @@ class NewPatientForm extends React.Component {
   }
 }
 
-const mapDispatchToProps = {createPatient}
+const mapStateToProps = ({patient}) => ({patient})
+const mapDispatchToProps = {editPatient, fetchPatient}
 
-export default connect(null, mapDispatchToProps)(NewPatientForm)
+export default connect(mapStateToProps, mapDispatchToProps)(EditPatientForm)
