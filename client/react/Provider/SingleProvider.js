@@ -35,7 +35,7 @@ class SingleProvider extends React.Component {
     return (
       <div>
           <h1>{name}</h1>
-          <h2>MRN: {id}</h2>
+          <h2>ID: {id}</h2>
           {correctProviderOrAdmin?<div>
           <button type="button" id="delete" onClick={this.handleClick}>
             Delete Provider
