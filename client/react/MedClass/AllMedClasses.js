@@ -19,13 +19,13 @@ class AllMedClasses extends React.Component {
             </span>
           </div>
         ))}
-        <Link to='/medClasses/new'><button type='button'>Add New Med Class</button></Link>
+        {this.props.user.label==='admin'?<Link to='/medClasses/new'><button type='button'>Add New Med Class</button></Link>:null}
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ medClasses }) => ({ medClasses });
+const mapStateToProps = ({ medClasses, user }) => ({ medClasses, user });
 const mapDispatchToProps = { fetchMedClasses };
 
 export default connect(

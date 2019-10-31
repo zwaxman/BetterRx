@@ -48,6 +48,7 @@ class SingleMed extends React.Component {
 
   render() {
     const { name, id } = this.props.med;
+    const {label} = this.props.user
 
     const medClasses = this.props.med.medClasses || [];
     const medClassesIds =
@@ -59,12 +60,14 @@ class SingleMed extends React.Component {
           <h1>{name}</h1>
           <h3>Aliases:</h3>
           <button type="button">UpToDate</button>
+          {label==='admin'?<div>
           <Link to={`/meds/${id}/edit`}>
             <button type="button">Edit Medication</button>
           </Link>
           <button type="button" id="delete" onClick={this.handleClick}>
             Delete Medication
           </button>
+          </div>:null}
         </div>
 
         <div>
@@ -74,22 +77,22 @@ class SingleMed extends React.Component {
             <div key={medClass.id}>
               {/* Most meds should only have one medication class */}
               <Link to={`/medClasses/${medClass.id}`}>{medClass.name}</Link>
-              <button
+              {label==='admin'?<button
                 type="button"
                 onClick={() =>
                   this.props.sendDeleteMedClassFromMed(id, medClass.id)
                 }
               >
                 Delete
-              </button>
+              </button>:null}
             </div>
           ))}
 
-          <button type="button" id="showMedClassForm" onClick={this.handleClick}>
+          {label==='admin'?<button type="button" id="showMedClassForm" onClick={this.handleClick}>
             {this.state.showMedClassForm ? "Hide" : "Add Medication Class"}
-          </button>
+          </button>:null}
 
-          {this.state.showMedClassForm ? (
+          {label==='admin'&&this.state.showMedClassForm ? (
             <form id="addMedClass" onSubmit={this.handleSubmit}>
               <select name="medClass">
                 {this.props.medClasses
@@ -112,7 +115,7 @@ class SingleMed extends React.Component {
   }
 }
 
-const mapStateToProps = ({ med, medClasses }) => ({ med, medClasses });
+const mapStateToProps = ({ med, medClasses, user }) => ({ med, medClasses, user });
 const mapDispatchToProps = {
   fetchMed,
   deleteMed,

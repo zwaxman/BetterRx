@@ -29,10 +29,17 @@ class SinglePatient extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchPatient(this.props.match.params.id);
-    this.props.fetchInteractions(this.props.match.params.id);
-    this.props.fetchOrphanMeds(this.props.match.params.id);
-    this.props.fetchOrphanProblems(this.props.match.params.id);
+    if (
+      this.props.user.label &&
+      (this.props.user.label === "provider" ||
+        (this.props.user.label === "patient" &&
+          this.props.user.id == Number(this.props.match.params.id)))
+    ) {
+      this.props.fetchPatient(this.props.match.params.id);
+      this.props.fetchInteractions(this.props.match.params.id);
+      this.props.fetchOrphanMeds(this.props.match.params.id);
+      this.props.fetchOrphanProblems(this.props.match.params.id);
+    }
   }
 
   handleClick(e) {
@@ -81,7 +88,24 @@ class SinglePatient extends React.Component {
   }
 
   render() {
+    console.log("rendering");
+    if (!this.props.user) {
+      return "Denied: Must be logged in";
+    }
+
+    if (
+      this.props.user.label === "patient" &&
+      this.props.user.id !== Number(this.props.match.params.id)
+    ) {
+      return "Denied: This is not your chart";
+    }
+
+    if (this.props.user.label === "admin") {
+      return "Denied: Administrators cannot see patient information";
+    }
+
     const { id, name, age, sex, ethnicity } = this.props.patient;
+    const { label } = this.props.user;
 
     const patientProblems = this.props.patient.problems || [];
     const patientProblemsIds =
@@ -112,9 +136,11 @@ class SinglePatient extends React.Component {
     const orphanMedsIds =
       orphanMeds.length > 0 ? orphanMeds.map(orphanMed => orphanMed.id) : [];
 
-      const orphanProblems = this.props.patient.orphanProblems || [];
-      const orphanProblemsIds =
-        orphanProblems.length > 0 ? orphanProblems.map(orphanProblem => orphanProblem.id) : [];
+    const orphanProblems = this.props.patient.orphanProblems || [];
+    const orphanProblemsIds =
+      orphanProblems.length > 0
+        ? orphanProblems.map(orphanProblem => orphanProblem.id)
+        : [];
 
     return (
       <div>
@@ -143,22 +169,31 @@ class SinglePatient extends React.Component {
             <div key={allergy.id}>
               {/* In the future will add a warning icon if patient receiving any medication with an allergy */}
               <Link to={`/medClasses/${allergy.id}`}>{allergy.name}</Link>
-              <button
-                type="button"
-                onClick={() =>
-                  this.props.sendDeleteAllergyFromPatient(id, allergy.id)
-                }
-              >
-                Delete
-              </button>
+
+              {label === "provider" ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    this.props.sendDeleteAllergyFromPatient(id, allergy.id)
+                  }
+                >
+                  Delete
+                </button>
+              ) : null}
             </div>
           ))}
 
-          <button type="button" id="showAllergyForm" onClick={this.handleClick}>
-            {this.state.showAllergyForm ? "Hide" : "Add Allergy"}
-          </button>
+          {label === "provider" ? (
+            <button
+              type="button"
+              id="showAllergyForm"
+              onClick={this.handleClick}
+            >
+              {this.state.showAllergyForm ? "Hide" : "Add Allergy"}
+            </button>
+          ) : null}
 
-          {this.state.showAllergyForm ? (
+          {label === "provider" && this.state.showAllergyForm ? (
             <form id="addAllergy" onSubmit={this.handleSubmit}>
               <select name="allergy">
                 {this.props.medClasses
@@ -189,22 +224,31 @@ class SinglePatient extends React.Component {
                 </div>
               ) : null}
               <Link to={`/problems/${problem.id}`}>{problem.name}</Link>
-              <button
-                type="button"
-                onClick={() =>
-                  this.props.sendDeleteProblemFromPatient(id, problem.id)
-                }
-              >
-                Delete
-              </button>
+
+              {label === "provider" ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    this.props.sendDeleteProblemFromPatient(id, problem.id)
+                  }
+                >
+                  Delete
+                </button>
+              ) : null}
             </div>
           ))}
 
-          <button type="button" id="showProblemForm" onClick={this.handleClick}>
-            {this.state.showProblemForm ? "Hide" : "Add Problem"}
-          </button>
+          {label === "provider" ? (
+            <button
+              type="button"
+              id="showProblemForm"
+              onClick={this.handleClick}
+            >
+              {this.state.showProblemForm ? "Hide" : "Add Problem"}
+            </button>
+          ) : null}
 
-          {this.state.showProblemForm ? (
+          {label === "provider" && this.state.showProblemForm ? (
             <form id="addProblem" onSubmit={this.handleSubmit}>
               <select name="problem">
                 {this.props.problems
@@ -267,20 +311,27 @@ class SinglePatient extends React.Component {
               ) : null}
 
               <Link to={`/meds/${med.id}`}>{med.name}</Link>
-              <button
-                type="button"
-                onClick={() => this.props.sendDeleteMedFromPatient(id, med.id)}
-              >
-                Delete
-              </button>
+
+              {label === "provider" ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    this.props.sendDeleteMedFromPatient(id, med.id)
+                  }
+                >
+                  Delete
+                </button>
+              ) : null}
             </div>
           ))}
 
-          <button type="button" id="showMedForm" onClick={this.handleClick}>
-            {this.state.showMedForm ? "Hide" : "Add Medication"}
-          </button>
+          {label === "provider" ? (
+            <button type="button" id="showMedForm" onClick={this.handleClick}>
+              {this.state.showMedForm ? "Hide" : "Add Medication"}
+            </button>
+          ) : null}
 
-          {this.state.showMedForm ? (
+          {label === "provider" && this.state.showMedForm ? (
             <form id="addMed" onSubmit={this.handleSubmit}>
               <select name="med">
                 {this.props.meds
@@ -304,11 +355,12 @@ class SinglePatient extends React.Component {
   }
 }
 
-const mapStateToProps = ({ patient, problems, medClasses, meds }) => ({
+const mapStateToProps = ({ patient, problems, medClasses, meds, user }) => ({
   patient,
   problems,
   medClasses,
-  meds
+  meds,
+  user
 });
 const mapDispatchToProps = {
   fetchPatient,

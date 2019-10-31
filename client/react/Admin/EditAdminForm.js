@@ -1,26 +1,26 @@
 import React from "react";
 import {connect} from 'react-redux'
-import {editMedClass, fetchMedClass} from '../../redux/medClass'
+import {editAdmin, fetchAdmin} from '../../redux/admin'
 
-class EditMedClassForm extends React.Component {
+class EditAdminForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: this.props.medClass.id || "",
-      name: this.props.medClass.name || "",
+      id: this.props.admin.id || "",
+      name: this.props.admin.name || "",
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.props.fetchMedClass(this.props.match.params.id)
+    this.props.fetchAdmin(this.props.match.params.id)
   }
 
   componentWillReceiveProps(newProps) {
     const newState = {}
     for (let key in this.state) {
-      newState[key]=newProps.medClass[key]
+      newState[key]=newProps.admin[key]
     }
     this.setState(newState)
   }
@@ -31,13 +31,10 @@ class EditMedClassForm extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.props.editMedClass(this.state, this.props.history)
+    this.props.editAdmin(this.state, this.props.history)
   }
 
   render() {
-    if (this.props.user.label !== 'admin') {
-      return 'Only administrators have access to this'
-    }
     return (
       <form onSubmit={this.handleSubmit}>
         <div className="form-group">
@@ -51,7 +48,7 @@ class EditMedClassForm extends React.Component {
   }
 }
 
-const mapStateToProps = ({medClass, user}) => ({medClass, user})
-const mapDispatchToProps = {editMedClass, fetchMedClass}
+const mapStateToProps = ({admin}) => ({admin})
+const mapDispatchToProps = {editAdmin, fetchAdmin}
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditMedClassForm)
+export default connect(mapStateToProps, mapDispatchToProps)(EditAdminForm)

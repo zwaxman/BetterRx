@@ -3,6 +3,8 @@ const router = express.Router();
 const driver = require("../db/db");
 const Node = require("../db/Node");
 
+const {isAdmin} = require("./middleware")
+
 router.get("/", (req, res, next) => {
   const session = driver.session();
   session
@@ -27,7 +29,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.post("/", (req, res, next) => {
+router.post("/", isAdmin, (req, res, next) => {
   const med = req.body;
   const session = driver.session();
   session
@@ -77,7 +79,7 @@ router.get("/:id", (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", isAdmin, (req, res, next) => {
     const id = Number(req.params.id)
     const session = driver.session();
   session
@@ -99,7 +101,7 @@ router.delete("/:id", (req, res, next) => {
     });
 })
 
-router.put("/:id", (req, res, next) => {
+router.put("/:id", isAdmin, (req, res, next) => {
     const med = req.body;
     const session = driver.session();
     session

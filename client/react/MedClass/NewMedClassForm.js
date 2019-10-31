@@ -22,6 +22,9 @@ class NewMedClassForm extends React.Component {
   }
 
   render() {
+    if (this.props.user.label !== 'admin') {
+      return 'Only administrators have access to this'
+    }
     return (
       <form onSubmit={this.handleSubmit}>
         <div medClassName="form-group">
@@ -35,6 +38,7 @@ class NewMedClassForm extends React.Component {
   }
 }
 
+const mapStateToProps = ({user}) => ({user})
 const mapDispatchToProps = {createMedClass}
 
-export default connect(null, mapDispatchToProps)(NewMedClassForm)
+export default connect(mapStateToProps, mapDispatchToProps)(NewMedClassForm)

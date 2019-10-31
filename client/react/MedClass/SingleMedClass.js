@@ -78,6 +78,7 @@ class SingleMedClass extends React.Component {
 
   render() {
     const { name, id } = this.props.medClass;
+    const {label} = this.props.user
 
     const indications = this.props.medClass.indications || [];
     const indicationsIds =
@@ -97,12 +98,14 @@ class SingleMedClass extends React.Component {
           <h1>{name}</h1>
           <h3>Aliases:</h3>
           <button type="button">UpToDate</button>
+          {label==='admin'?<div>
           <Link to={`/medClasses/${id}/edit`}>
             <button type="button">Edit MedClass</button>
           </Link>
           <button type="button" id="delete" onClick={this.handleClick}>
             Delete MedClass
           </button>
+          </div>:null}
         </div>
 
         <div>
@@ -111,22 +114,22 @@ class SingleMedClass extends React.Component {
           {indications.sort(sort).map(indication => (
             <div key={indication.id}>
               <Link to={`/problems/${indication.id}`}>{indication.name}</Link>
-              <button
+              {label==='admin'?<button
                 type="button"
                 onClick={() =>
                   this.props.sendDeleteIndicationFromMedClass(id, indication.id)
                 }
               >
                 Delete
-              </button>
+              </button>:null}
             </div>
           ))}
 
-          <button type="button" id="showIndicationForm" onClick={this.handleClick}>
+          {label==='admin'?<button type="button" id="showIndicationForm" onClick={this.handleClick}>
             {this.state.showIndicationForm ? "Hide" : "Add Indication"}
-          </button>
+          </button>:null}
 
-          {this.state.showIndicationForm ? (
+          {label==='admin'&&this.state.showIndicationForm ? (
             <form id="addIndication" onSubmit={this.handleSubmit}>
               <select name="indication">
                 {this.props.problems
@@ -148,22 +151,22 @@ class SingleMedClass extends React.Component {
         {meds.sort(sort).map(med => (
             <div key={med.id}>
               <Link to={`/meds/${med.id}`}>{med.name}</Link>
-              <button
+              {label==='admin'?<button
                 type="button"
                 onClick={() =>
                   this.props.sendDeleteMedFromMedClass(id, med.id)
                 }
               >
                 Delete
-              </button>
+              </button>:null}
             </div>
           ))}
 
-          <button type="button" id="showMedForm" onClick={this.handleClick}>
+          {label==='admin'?<button type="button" id="showMedForm" onClick={this.handleClick}>
             {this.state.showMedForm ? "Hide" : "Add Medication"}
-          </button>
+          </button>:null}
 
-          {this.state.showMedForm ? (
+          {label==='admin'&&this.state.showMedForm ? (
             <form id="addMed" onSubmit={this.handleSubmit}>
               <select name="med">
                 {this.props.meds
@@ -186,22 +189,22 @@ class SingleMedClass extends React.Component {
         {interactions.sort(sort).map(interaction => (
             <div key={interaction.id}>
               <Link to={`/medClasses/${interaction.id}`}>{interaction.name}</Link>
-              <button
+              {label==='admin'?<button
                 type="button"
                 onClick={() =>
                   this.props.sendDeleteInteractionFromMedClass(id, interaction.id)
                 }
               >
                 Delete
-              </button>
+              </button>:null}
             </div>
           ))}
 
-          <button type="button" id="showInteractionForm" onClick={this.handleClick}>
+          {label==='admin'?<button type="button" id="showInteractionForm" onClick={this.handleClick}>
             {this.state.showInteractionForm ? "Hide" : "Add Interaction"}
-          </button>
+          </button>:null}
 
-          {this.state.showInteractionForm ? (
+          {label==='admin'&&this.state.showInteractionForm ? (
             <form id="addInteraction" onSubmit={this.handleSubmit}>
               <select name="interaction">
                 {this.props.medClasses
@@ -225,7 +228,7 @@ class SingleMedClass extends React.Component {
   }
 }
 
-const mapStateToProps = ({ medClass, problems, meds, medClasses }) => ({ medClass, problems, meds, medClasses });
+const mapStateToProps = ({ medClass, problems, meds, medClasses, user }) => ({ medClass, problems, meds, medClasses, user });
 const mapDispatchToProps = {
   fetchMedClass,
   deleteMedClass,

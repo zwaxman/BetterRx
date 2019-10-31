@@ -19,13 +19,13 @@ class AllProblems extends React.Component {
             </span>
           </div>
         ))}
-        <Link to='/problems/new'><button type='button'>Add New Problem</button></Link>
+        {this.props.user.label==='admin'?<Link to='/problems/new'><button type='button'>Add New Problem</button></Link>:null}
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ problems }) => ({ problems });
+const mapStateToProps = ({ problems, user }) => ({ problems, user });
 const mapDispatchToProps = { fetchProblems };
 
 export default connect(

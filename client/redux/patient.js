@@ -1,13 +1,12 @@
 import axios from "axios";
 import {
-  addPatient,
   deletePatientFromPatients,
   editPatientInPatients
 } from "./patients";
-import { sort } from "../../util";
 
 const SET_PATIENT = "SET_PATIENT";
 const ADD_PROP = "ADD_PROP"
+const CLEAR_PATIENT = "CLEAR_PATIENT"
 
 export const setPatient = patient => ({
   type: SET_PATIENT,
@@ -18,6 +17,10 @@ export const addProp = (key, value) => ({
   type: ADD_PROP,
   key,
   value
+})
+
+export const clearPatient = () => ({
+  type: CLEAR_PATIENT
 })
 
 export const addProblemToPatient = problem => ({
@@ -40,16 +43,6 @@ export const deleteAllergyFromPatient = allergyId => ({
   allergyId
 });
 
-export const createPatient = (patient, history) => async dispatch => {
-  try {
-    const { data } = await axios.post("/api/patients", patient);
-    dispatch(addPatient(data));
-    history.push(`/patients/${data.id}`);
-  } catch (error) {
-    console.log("Unable to create patient");
-  }
-};
-
 export const fetchPatient = id => async dispatch => {
   try {
     const { data } = await axios.get(`/api/patients/${id}`);
@@ -62,7 +55,6 @@ export const fetchPatient = id => async dispatch => {
 export const fetchInteractions = id => async dispatch => {
   try {
     const { data } = await axios.get(`/api/patients/${id}/interactions`);
-    console.log(data)
     dispatch(addProp('interactions',data));
   } catch (error) {
     console.log("Unable to fetch interactions");
@@ -72,7 +64,6 @@ export const fetchInteractions = id => async dispatch => {
 export const fetchOrphanMeds = id => async dispatch => {
   try {
     const { data } = await axios.get(`/api/patients/${id}/orphanMeds`);
-    console.log(data)
     dispatch(addProp('orphanMeds',data));
   } catch (error) {
     console.log("Unable to fetch orphan medications");
@@ -82,7 +73,6 @@ export const fetchOrphanMeds = id => async dispatch => {
 export const fetchOrphanProblems = id => async dispatch => {
   try {
     const { data } = await axios.get(`/api/patients/${id}/orphanProblems`);
-    console.log(data)
     dispatch(addProp('orphanProblems',data));
   } catch (error) {
     console.log("Unable to fetch orphan problems");
@@ -191,6 +181,8 @@ export const patient = (state = {}, action) => {
       return Object.assign({}, state, action.patient);
       case ADD_PROP:
           return {...state, [action.key]: action.value};
+        case CLEAR_PATIENT:
+          return {}
     default:
       return state;
   }

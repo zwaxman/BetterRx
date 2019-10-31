@@ -35,6 +35,9 @@ class EditProblemForm extends React.Component {
   }
 
   render() {
+    if (this.props.user.label !== 'admin') {
+      return 'Only administrators have access to this'
+    }
     return (
       <form onSubmit={this.handleSubmit}>
         <div className="form-group">

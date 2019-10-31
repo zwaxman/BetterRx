@@ -7,6 +7,11 @@ import {medClass} from './medClass'
 import {medClasses} from './medClasses'
 import {med} from './med'
 import {meds} from './meds'
+import {user} from './user'
+import {admin} from './admin'
+import {admins} from './admins'
+import {provider} from './provider'
+import {providers} from './providers'
 
 export const reducer = combineReducers({
   patient,
@@ -16,5 +21,9 @@ export const reducer = combineReducers({
   medClass,
   medClasses,
   med,
-  meds
+  meds, user,
+  admin,
+  admins,
+  provider,
+  providers,
 })

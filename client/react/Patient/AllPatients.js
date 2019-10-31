@@ -9,6 +9,9 @@ class AllPatients extends React.Component {
   }
 
   render() {
+    if (this.props.user.label !== 'provider' || (!this.props.user)) {
+      return 'Denied: Provider access only'
+    }
     return (
       <div>
         {this.props.patients.map(patient => (
@@ -22,13 +25,12 @@ class AllPatients extends React.Component {
             <span>Ethnicity: {patient.ethnicity}</span>
           </div>
         ))}
-        <Link to='/patients/new'><button type='button'>Add New Patient</button></Link>
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ patients }) => ({ patients });
+const mapStateToProps = ({ patients, user }) => ({ patients, user });
 const mapDispatchToProps = { fetchPatients };
 
 export default connect(

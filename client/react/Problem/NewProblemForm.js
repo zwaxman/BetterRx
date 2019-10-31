@@ -22,6 +22,9 @@ class NewProblemForm extends React.Component {
   }
 
   render() {
+    if (this.props.user.label !== 'admin') {
+      return 'Only administrators have access to this'
+    }
     return (
       <form onSubmit={this.handleSubmit}>
         <div className="form-group">
@@ -35,6 +38,7 @@ class NewProblemForm extends React.Component {
   }
 }
 
+const mapStateToProps = ({user}) => ({user})
 const mapDispatchToProps = {createProblem}
 
-export default connect(null, mapDispatchToProps)(NewProblemForm)
+export default connect(mapStateToProps, mapDispatchToProps)(NewProblemForm)

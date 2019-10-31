@@ -1,8 +1,11 @@
 class Node {
     constructor(node) {
         this.id = node.identity.low
+        this.label = node.labels[0]
         for (let key in node.properties) {
-            this[key]=node.properties[key]
+            if (key !== 'password'){
+                this[key]=node.properties[key]
+            }
         }
     }
 }

@@ -5,11 +5,17 @@ router.use('/:node1/:node1Id/:node2/:node2Id', require('./rel'))
 
 router.use('/patients', require('./patients'))
 
+router.use('/admins', require('./admins'))
+
+router.use('/providers', require('./providers'))
+
 router.use('/problems', require('./problems'))
 
 router.use('/medClasses', require('./medClasses'))
 
 router.use('/meds', require('./meds'))
+
+router.use('/auth', require('./auth'))
 
 router.use((req, res, next) => {
     const err = new Error('Not found')

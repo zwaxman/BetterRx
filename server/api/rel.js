@@ -3,6 +3,8 @@ const router = express.Router({mergeParams: true});
 const driver = require("../db/db");
 const Node = require('../db/Node')
 
+const {isAdmin, isProvider} = require("./middleware")
+
 const validNodeLabels = ['patients', 'problems', 'medClasses']
 const validRelLabels = ['TREATS_DISEASE', 'ALLERGIC_TO_MED_CLASS', 'HAS_PROBLEM']
 // const validRelProps = ...
@@ -22,7 +24,11 @@ router.use((req, res, next) => {
         break
     }
     if (valid) {
-        next()
+        if (node1==='patients' || node2==='patients') {
+          isProvider(req,res,next)
+        } else {
+          isAdmin(req,res,next)
+        }
     } else {
         const error = new Error()
         error.message = 'Invalid api route to create relationship'

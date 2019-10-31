@@ -48,6 +48,7 @@ class SingleProblem extends React.Component {
 
   render() {
     const { name, id } = this.props.problem;
+    const {label} = this.props.user
 
     const txClasses = this.props.problem.txClasses || [];
     const txClassesIds =
@@ -60,12 +61,14 @@ class SingleProblem extends React.Component {
           <h3>Aliases:</h3>
           <h3>Diagnostic criteria:</h3>
           <button type="button">UpToDate</button>
+          {label==='admin'?<div>
           <Link to={`/problems/${id}/edit`}>
             <button type="button">Edit Problem</button>
           </Link>
           <button type="button" id="delete" onClick={this.handleClick}>
             Delete Problem
           </button>
+          </div>:null}
         </div>
 
         <div>
@@ -75,22 +78,22 @@ class SingleProblem extends React.Component {
             <div key={txClass.id}>
               {/* In the future will add a warning icon if patient receiving any medication with an txClass */}
               <Link to={`/medClasses/${txClass.id}`}>{txClass.name}</Link>
-              <button
+              {label==='admin'?<button
                 type="button"
                 onClick={() =>
                   this.props.sendDeleteTxClassFromProblem(id, txClass.id)
                 }
               >
                 Delete
-              </button>
+              </button>:null}
             </div>
           ))}
 
-          <button type="button" id="showTxClassForm" onClick={this.handleClick}>
+          {label==='admin'?<button type="button" id="showTxClassForm" onClick={this.handleClick}>
             {this.state.showTxClassForm ? "Hide" : "Add Treatment Class"}
-          </button>
+          </button>:null}
 
-          {this.state.showTxClassForm ? (
+          {label==='admin'&&this.state.showTxClassForm ? (
             <form id="addTxClass" onSubmit={this.handleSubmit}>
               <select name="txClass">
                 {this.props.medClasses
@@ -113,7 +116,7 @@ class SingleProblem extends React.Component {
   }
 }
 
-const mapStateToProps = ({ problem, medClasses }) => ({ problem, medClasses });
+const mapStateToProps = ({ problem, medClasses, user }) => ({ problem, medClasses, user });
 const mapDispatchToProps = {
   fetchProblem,
   deleteProblem,

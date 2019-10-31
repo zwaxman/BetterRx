@@ -19,13 +19,13 @@ class AllMeds extends React.Component {
             </span>
           </div>
         ))}
-        <Link to='/meds/new'><button type='button'>Add New Medication</button></Link>
+        {this.props.user.label==='admin'?<Link to='/meds/new'><button type='button'>Add New Medication</button></Link>:null}
       </div>
     )
   }
 }
 
-const mapStateToProps = ({ meds }) => ({ meds });
+const mapStateToProps = ({ meds, user }) => ({ meds, user });
 const mapDispatchToProps = { fetchMeds };
 
 export default connect(

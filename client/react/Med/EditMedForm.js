@@ -35,6 +35,9 @@ class EditMedForm extends React.Component {
   }
 
   render() {
+    if (this.props.user.label !== 'admin') {
+      return 'Only administrators have access to this'
+    }
     return (
       <form onSubmit={this.handleSubmit}>
         <div className="form-group">
@@ -48,7 +51,7 @@ class EditMedForm extends React.Component {
   }
 }
 
-const mapStateToProps = ({med}) => ({med})
+const mapStateToProps = ({med, user}) => ({med, user})
 const mapDispatchToProps = {editMed, fetchMed}
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditMedForm)

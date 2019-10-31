@@ -3,7 +3,9 @@ const router = express.Router();
 const driver = require("../db/db");
 const Node = require("../db/Node");
 
-router.get("/", (req, res, next) => {
+const {isProvider, isPatientOrProvider} = require("./middleware")
+
+router.get("/", isProvider, (req, res, next) => {
   const session = driver.session();
   session
     .writeTransaction(tx => {
@@ -26,31 +28,7 @@ router.get("/", (req, res, next) => {
     });
 });
 
-router.post("/", (req, res, next) => {
-  const patient = req.body;
-  const session = driver.session();
-  session
-    .writeTransaction(tx => {
-      let query = "CREATE (patient:patient)";
-      for (let key in patient) {
-        query += ` SET patient.${key} = $${key}`;
-      }
-      query += " RETURN patient";
-      return tx.run(query, patient);
-    })
-    .then(result => {
-      session.close();
-      res.status(201).json(new Node(result.records[0].get("patient")));
-    })
-    .catch(error => {
-      session.close();
-      error.status = 401;
-      error.message = "Unable to create patient";
-      next(error);
-    });
-});
-
-router.get("/:id", (req, res, next) => {
+router.get("/:id", isPatientOrProvider, (req, res, next) => {
   const id = Number(req.params.id);
   const session = driver.session();
   session
@@ -71,7 +49,7 @@ router.get("/:id", (req, res, next) => {
     })
     .then(result => {
       session.close();
-      patientNode = result.records[0].get("patient");
+      const patientNode = result.records[0].get("patient");
       patientNode.properties.problems = result.records[0]
         .get("problems")
         .map(problem => new Node(problem));
@@ -95,7 +73,7 @@ router.get("/:id", (req, res, next) => {
     });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", isPatientOrProvider, (req, res, next) => {
   const id = Number(req.params.id);
   const session = driver.session();
   session
@@ -117,7 +95,7 @@ router.delete("/:id", (req, res, next) => {
     });
 });
 
-router.put("/:id", (req, res, next) => {
+router.put("/:id", isPatientOrProvider, (req, res, next) => {
   const patient = req.body;
   const session = driver.session();
   session
@@ -143,7 +121,7 @@ router.put("/:id", (req, res, next) => {
     });
 });
 
-router.get("/:id/interactions", (req, res, next) => {
+router.get("/:id/interactions", isPatientOrProvider, (req, res, next) => {
   const id = Number(req.params.id);
   const session = driver.session();
   session
@@ -175,7 +153,7 @@ router.get("/:id/interactions", (req, res, next) => {
     });
 });
 
-router.get("/:id/orphanMeds", (req, res, next) => {
+router.get("/:id/orphanMeds", isPatientOrProvider, (req, res, next) => {
   const id = Number(req.params.id);
   const session = driver.session();
   session
@@ -200,7 +178,7 @@ router.get("/:id/orphanMeds", (req, res, next) => {
     });
 });
 
-router.get("/:id/orphanProblems", (req, res, next) => {
+router.get("/:id/orphanProblems", isPatientOrProvider, (req, res, next) => {
   const id = Number(req.params.id);
   const session = driver.session();
   session
