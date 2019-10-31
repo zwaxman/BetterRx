@@ -7,11 +7,18 @@ import {
 import { sort } from "../../util";
 
 const SET_PATIENT = "SET_PATIENT";
+const ADD_PROP = "ADD_PROP"
 
 export const setPatient = patient => ({
   type: SET_PATIENT,
   patient
 });
+
+export const addProp = (key, value) => ({
+  type: ADD_PROP,
+  key,
+  value
+})
 
 export const addProblemToPatient = problem => ({
   type: ADD_PROBLEM_TO_PATIENT,
@@ -49,6 +56,26 @@ export const fetchPatient = id => async dispatch => {
     dispatch(setPatient(data));
   } catch (error) {
     console.log("Unable to fetch patient");
+  }
+};
+
+export const fetchInteractions = id => async dispatch => {
+  try {
+    const { data } = await axios.get(`/api/patients/${id}/interactions`);
+    console.log(data)
+    dispatch(addProp('interactions',data));
+  } catch (error) {
+    console.log("Unable to fetch interactions");
+  }
+};
+
+export const fetchOrphanMeds = id => async dispatch => {
+  try {
+    const { data } = await axios.get(`/api/patients/${id}/orphanMeds`);
+    console.log(data)
+    dispatch(addProp('orphanMeds',data));
+  } catch (error) {
+    console.log("Unable to fetch orphan medications");
   }
 };
 
@@ -151,7 +178,9 @@ export const sendDeleteMedFromPatient = (
 export const patient = (state = {}, action) => {
   switch (action.type) {
     case SET_PATIENT:
-      return action.patient;
+      return Object.assign({}, state, action.patient);
+      case ADD_PROP:
+          return {...state, [action.key]: action.value};
     default:
       return state;
   }

@@ -8,21 +8,29 @@ import {
   sendAddAllergyToPatient,
   sendDeleteAllergyFromPatient,
   sendAddMedToPatient,
-  sendDeleteMedFromPatient
+  sendDeleteMedFromPatient,
+  fetchInteractions,
+  fetchOrphanMeds,
 } from "../../redux/patient";
 import { Link } from "react-router-dom";
-import {sort} from "../../../util"
+import { sort } from "../../../util";
 
 class SinglePatient extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showProblemForm: false, showAllergyForm: false, showMedForm: false };
+    this.state = {
+      showProblemForm: false,
+      showAllergyForm: false,
+      showMedForm: false
+    };
     this.handleClick = this.handleClick.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
     this.props.fetchPatient(this.props.match.params.id);
+    this.props.fetchInteractions(this.props.match.params.id);
+    this.props.fetchOrphanMeds(this.props.match.params.id)
   }
 
   handleClick(e) {
@@ -81,14 +89,27 @@ class SinglePatient extends React.Component {
 
     const allergies = this.props.patient.allergies || [];
     const allergiesIds =
-      allergies.length > 0
-        ? allergies.map(allergy => allergy.id)
+      allergies.length > 0 ? allergies.map(allergy => allergy.id) : [];
+
+    const meds = this.props.patient.meds || [];
+    const medsIds = meds.length > 0 ? meds.map(allergy => allergy.id) : [];
+
+    const allergyAlerts = this.props.patient.allergyAlerts || [];
+    const allergyAlertsIds =
+      allergyAlerts.length > 0
+        ? allergyAlerts.map(allergyAlert => allergyAlert.id)
         : [];
 
-        const meds = this.props.patient.meds || [];
-        const medsIds =
-          meds.length > 0
-            ? meds.map(allergy => allergy.id)
+    const interactions = this.props.patient.interactions || [];
+    const interactionsIds =
+      interactions.length > 0
+        ? interactions.map(interaction => interaction.med.id)
+        : [];
+    
+        const orphanMeds = this.props.patient.orphanMeds || [];
+        const orphanMedsIds =
+          orphanMeds.length > 0
+            ? orphanMeds.map(orphanMed => orphanMed.id)
             : [];
 
     return (
@@ -190,17 +211,51 @@ class SinglePatient extends React.Component {
         </div>
 
         <div>
-        <h2>Medications</h2>
+          <h2>Medications</h2>
 
-        {meds.sort(sort).map(med => (
+          {meds.sort(sort).map(med => (
             <div key={med.id}>
               {/* In the future will add a warning icon if the med is not treating any problem on problem list */}
+
+              {orphanMedsIds.includes(med.id) ? (
+                <div className="tooltip">
+                  <i className="fas fa-exclamation-triangle"></i>
+                  <span className="tooltiptext allergy">
+                    Warning: Medication not treating any problem in problem list
+                  </span>
+                </div>
+              ) : null}
+
+              {allergyAlertsIds.includes(med.id) ? (
+                <div className="tooltip">
+                  <i className="fas fa-exclamation-triangle"></i>
+                  <span className="tooltiptext allergy">
+                    Warning: Possible allergic reaction
+                  </span>
+                </div>
+              ) : null}
+
+              {interactionsIds.includes(med.id) ? (
+                <div className="tooltip">
+                  <i className="fas fa-exclamation-triangle"></i>
+                  <span className="tooltiptext interaction">
+                    {interactions
+                      .filter(interaction => {
+                        return interaction.med.id === med.id;
+                      })
+                      .map(interaction => {
+                        const warning = `Warning: ${interaction.med.name} (class: ${interaction.medClass.name}) interacts with ${interaction.interactionMed.name} (class: ${interaction.interactionMedClass.name})`
+                        return (
+                        <div key={interaction.interactionMed.id}>{warning}</div>
+                      )})}
+                  </span>
+                </div>
+              ) : null}
+
               <Link to={`/meds/${med.id}`}>{med.name}</Link>
               <button
                 type="button"
-                onClick={() =>
-                  this.props.sendDeleteMedFromPatient(id, med.id)
-                }
+                onClick={() => this.props.sendDeleteMedFromPatient(id, med.id)}
               >
                 Delete
               </button>
@@ -226,9 +281,8 @@ class SinglePatient extends React.Component {
               <button type="submit">Submit</button>
             </form>
           ) : null}
-
         </div>
-        
+
         <h2>Providers</h2>
         <h2>Insurance</h2>
       </div>
@@ -236,7 +290,12 @@ class SinglePatient extends React.Component {
   }
 }
 
-const mapStateToProps = ({ patient, problems, medClasses, meds }) => ({ patient, problems, medClasses, meds });
+const mapStateToProps = ({ patient, problems, medClasses, meds }) => ({
+  patient,
+  problems,
+  medClasses,
+  meds
+});
 const mapDispatchToProps = {
   fetchPatient,
   deletePatient,
@@ -245,7 +304,9 @@ const mapDispatchToProps = {
   sendAddAllergyToPatient,
   sendDeleteAllergyFromPatient,
   sendAddMedToPatient,
-  sendDeleteMedFromPatient
+  sendDeleteMedFromPatient,
+  fetchInteractions,
+  fetchOrphanMeds
 };
 
 export default connect(

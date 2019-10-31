@@ -6,7 +6,9 @@ import {
   sendAddIndicationToMedClass,
   sendDeleteIndicationFromMedClass,
   sendAddMedToMedClass,
-  sendDeleteMedFromMedClass
+  sendDeleteMedFromMedClass,
+  sendAddInteractionToMedClass,
+  sendDeleteInteractionFromMedClass
 } from "../../redux/medClass";
 import { Link } from "react-router-dom";
 import {sort} from "../../../util"
@@ -14,7 +16,7 @@ import {sort} from "../../../util"
 class SingleMedClass extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showIndicationForm: false, showMedForm: false };
+    this.state = { id: this.props.match.params.id, showIndicationForm: false, showMedForm: false, showInteractionForm: false };
     this.handleClick = this.handleClick.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -23,6 +25,12 @@ class SingleMedClass extends React.Component {
     this.props.fetchMedClass(this.props.match.params.id);
   }
 
+  componentWillReceiveProps(newProps) {
+    if (this.props.match.params.id !== newProps.match.params.id) {
+      this.props.fetchMedClass(newProps.match.params.id);
+    }
+  }
+  
   handleClick(e) {
     e.persist();
     if (e.target.id === "delete") {
@@ -40,6 +48,11 @@ class SingleMedClass extends React.Component {
         ...state,
         showMedForm: !state.showMedForm
       }));
+    } else if (e.target.id === "showInteractionForm") {
+      this.setState(state => ({
+        ...state,
+        showInteractionForm: !state.showInteractionForm
+      }));
     }
   }
 
@@ -55,6 +68,11 @@ class SingleMedClass extends React.Component {
         this.props.match.params.id,
         e.target.med.value
       );
+    } else if (e.target.id === "addInteraction") {
+      this.props.sendAddInteractionToMedClass(
+        this.props.match.params.id,
+        e.target.interaction.value
+      );
     }
   }
 
@@ -68,6 +86,10 @@ class SingleMedClass extends React.Component {
       const meds = this.props.medClass.meds || [];
       const medsIds =
         meds.length > 0 ? meds.map(med => med.id) : [];
+
+        const interactions = this.props.medClass.interactions || [];
+      const interactionsIds =
+        interactions.length > 0 ? interactions.map(interaction => interaction.id) : [];
 
     return (
       <div>
@@ -159,20 +181,60 @@ class SingleMedClass extends React.Component {
 
         </div>
 
+        <div>
+        <h2>Interactions</h2>
+        {interactions.sort(sort).map(interaction => (
+            <div key={interaction.id}>
+              <Link to={`/medClasses/${interaction.id}`}>{interaction.name}</Link>
+              <button
+                type="button"
+                onClick={() =>
+                  this.props.sendDeleteInteractionFromMedClass(id, interaction.id)
+                }
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          <button type="button" id="showInteractionForm" onClick={this.handleClick}>
+            {this.state.showInteractionForm ? "Hide" : "Add Interaction"}
+          </button>
+
+          {this.state.showInteractionForm ? (
+            <form id="addInteraction" onSubmit={this.handleSubmit}>
+              <select name="interaction">
+                {this.props.medClasses
+                  .filter(medClass => !interactionsIds.includes(medClass.id) && medClass.id !== id)
+                  .map(medClass => (
+                    <option key={medClass.id} value={medClass.id}>
+                      {medClass.name}
+                    </option>
+                  ))}
+              </select>
+              {/* in the future, will be able to add details about when this medClass should be used for indication */}
+              <button type="submit">Submit</button>
+            </form>
+          ) : null}
+
+        </div>
+
         <h2>Analytics</h2>
       </div>
     );
   }
 }
 
-const mapStateToProps = ({ medClass, problems, meds }) => ({ medClass, problems, meds });
+const mapStateToProps = ({ medClass, problems, meds, medClasses }) => ({ medClass, problems, meds, medClasses });
 const mapDispatchToProps = {
   fetchMedClass,
   deleteMedClass,
   sendAddIndicationToMedClass,
   sendDeleteIndicationFromMedClass,
   sendAddMedToMedClass,
-  sendDeleteMedFromMedClass
+  sendDeleteMedFromMedClass,
+  sendAddInteractionToMedClass,
+  sendDeleteInteractionFromMedClass
 };
 
 export default connect(

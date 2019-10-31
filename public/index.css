@@ -1,3 +1,38 @@
 html {
-    color: green
+  color: green;
 }
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block; /* If you want dots under the hoverable text */
+}
+
+.tooltip .tooltiptext.allergy {
+width: 350px;
+}
+
+.tooltip .tooltiptext.interaction {
+  width: 600px;
+  }
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  font-size: 14px;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+  }

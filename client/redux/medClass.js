@@ -93,6 +93,28 @@ export const sendAddIndicationToMedClass = (
     } catch (error) {}
   };
 
+  export const sendAddInteractionToMedClass = (
+    medClassId,
+    interactionId
+  ) => async dispatch => {
+    try {
+      const { data } = await axios.post(
+        `/api/medClasses/${medClassId}/medClasses/${interactionId}`
+      , {relLabel: 'INTERACTS_WITH_MED_CLASS', relProps: {}});
+      dispatch(fetchMedClass(medClassId))
+    } catch (error) {}
+  };
+  
+  export const sendDeleteInteractionFromMedClass = (
+    medClassId,
+    interactionId
+  ) => async dispatch => {
+    try {
+      await axios.delete(`/api/medClasses/${medClassId}/medClasses/${interactionId}`, {data: {relLabel: 'INTERACTS_WITH_MED_CLASS'}});
+      dispatch(fetchMedClass(medClassId))
+    } catch (error) {}
+  };
+
 export const medClass = (state = {}, action) => {
     switch (action.type) {
         case SET_MED_CLASS:

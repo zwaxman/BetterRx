@@ -59,7 +59,10 @@ router.get("/:id", (req, res, next) => {
             WHERE ID(medClass) = ${id} \
             OPTIONAL MATCH (medClass)-[:TREATS_PROBLEM]-(indication:problem) \
             OPTIONAL MATCH (medClass)-[:BELONGS_TO_MED_CLASS]-(med:med) \
-          RETURN medClass, collect(DISTINCT indication) as indications, collect(DISTINCT med) as meds`;
+            OPTIONAL MATCH (medClass)-[:INTERACTS_WITH_MED_CLASS]-(interaction:medClass)
+          RETURN medClass, collect(DISTINCT indication) as indications, \
+          collect(DISTINCT med) as meds, \
+          collect(DISTINCT interaction) as interactions`;
       return tx.run(query);
     })
     .then(result => {
@@ -67,6 +70,7 @@ router.get("/:id", (req, res, next) => {
         const medClassNode = result.records[0].get("medClass")
         medClassNode.properties.indications = result.records[0].get("indications").map(txClass => new Node(txClass))
         medClassNode.properties.meds = result.records[0].get("meds").map(med => new Node(med))
+        medClassNode.properties.interactions = result.records[0].get("interactions").map(med => new Node(med))
         const medClass = new Node(medClassNode)
         res.status(200).json(medClass);
     })
