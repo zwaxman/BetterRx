@@ -11,6 +11,7 @@ import {
   sendDeleteMedFromPatient,
   fetchInteractions,
   fetchOrphanMeds,
+  fetchOrphanProblems
 } from "../../redux/patient";
 import { Link } from "react-router-dom";
 import { sort } from "../../../util";
@@ -30,7 +31,8 @@ class SinglePatient extends React.Component {
   componentDidMount() {
     this.props.fetchPatient(this.props.match.params.id);
     this.props.fetchInteractions(this.props.match.params.id);
-    this.props.fetchOrphanMeds(this.props.match.params.id)
+    this.props.fetchOrphanMeds(this.props.match.params.id);
+    this.props.fetchOrphanProblems(this.props.match.params.id);
   }
 
   handleClick(e) {
@@ -105,12 +107,14 @@ class SinglePatient extends React.Component {
       interactions.length > 0
         ? interactions.map(interaction => interaction.med.id)
         : [];
-    
-        const orphanMeds = this.props.patient.orphanMeds || [];
-        const orphanMedsIds =
-          orphanMeds.length > 0
-            ? orphanMeds.map(orphanMed => orphanMed.id)
-            : [];
+
+    const orphanMeds = this.props.patient.orphanMeds || [];
+    const orphanMedsIds =
+      orphanMeds.length > 0 ? orphanMeds.map(orphanMed => orphanMed.id) : [];
+
+      const orphanProblems = this.props.patient.orphanProblems || [];
+      const orphanProblemsIds =
+        orphanProblems.length > 0 ? orphanProblems.map(orphanProblem => orphanProblem.id) : [];
 
     return (
       <div>
@@ -176,7 +180,14 @@ class SinglePatient extends React.Component {
 
           {patientProblems.sort(sort).map(problem => (
             <div key={problem.id}>
-              {/* In the future will add a warning icon if the problem is not being treated with any medication */}
+              {orphanProblemsIds.includes(problem.id) ? (
+                <div className="tooltip">
+                  <i className="fas fa-exclamation-triangle"></i>
+                  <span className="tooltiptext allergy">
+                    Warning: None of patient's medications address this problem
+                  </span>
+                </div>
+              ) : null}
               <Link to={`/problems/${problem.id}`}>{problem.name}</Link>
               <button
                 type="button"
@@ -244,10 +255,13 @@ class SinglePatient extends React.Component {
                         return interaction.med.id === med.id;
                       })
                       .map(interaction => {
-                        const warning = `Warning: ${interaction.med.name} (class: ${interaction.medClass.name}) interacts with ${interaction.interactionMed.name} (class: ${interaction.interactionMedClass.name})`
+                        const warning = `Warning: ${interaction.med.name} (class: ${interaction.medClass.name}) interacts with ${interaction.interactionMed.name} (class: ${interaction.interactionMedClass.name})`;
                         return (
-                        <div key={interaction.interactionMed.id}>{warning}</div>
-                      )})}
+                          <div key={interaction.interactionMed.id}>
+                            {warning}
+                          </div>
+                        );
+                      })}
                   </span>
                 </div>
               ) : null}
@@ -306,7 +320,8 @@ const mapDispatchToProps = {
   sendAddMedToPatient,
   sendDeleteMedFromPatient,
   fetchInteractions,
-  fetchOrphanMeds
+  fetchOrphanMeds,
+  fetchOrphanProblems
 };
 
 export default connect(

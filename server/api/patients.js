@@ -195,7 +195,32 @@ router.get("/:id/orphanMeds", (req, res, next) => {
     .catch(error => {
       session.close();
       error.status = 404;
-      error.message = `Unable to fetch patient with id: ${id}`;
+      error.message = `Unable to fetch orphan medication for patient with id: ${id}`;
+      next(error);
+    });
+});
+
+router.get("/:id/orphanProblems", (req, res, next) => {
+  const id = Number(req.params.id);
+  const session = driver.session();
+  session
+    .writeTransaction(tx => {
+      query = `MATCH (patient:patient) \
+      WHERE ID(patient)=${id} \
+      MATCH (patient)-[:HAS_PROBLEM]-(problem:problem) \
+      WHERE NOT exists((patient)-[:TAKES_MED]-(:med)-[:BELONGS_TO_MED_CLASS]-(:medClass)-[:TREATS_PROBLEM]-(problem)) \
+      RETURN problem`;
+      return tx.run(query);
+    })
+    .then(result => {
+      session.close();
+      const orphanProblems=result.records.map(record => new Node(record.get('problem')))
+      res.status(200).json(orphanProblems)
+    })
+    .catch(error => {
+      session.close();
+      error.status = 404;
+      error.message = `Unable to fetch orphan problems for patient with id: ${id}`;
       next(error);
     });
 });

@@ -79,6 +79,16 @@ export const fetchOrphanMeds = id => async dispatch => {
   }
 };
 
+export const fetchOrphanProblems = id => async dispatch => {
+  try {
+    const { data } = await axios.get(`/api/patients/${id}/orphanProblems`);
+    console.log(data)
+    dispatch(addProp('orphanProblems',data));
+  } catch (error) {
+    console.log("Unable to fetch orphan problems");
+  }
+};
+
 export const deletePatient = (id, history) => async dispatch => {
   try {
     await axios.delete(`/api/patients/${id}`);
